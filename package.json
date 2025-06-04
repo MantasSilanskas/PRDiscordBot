@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "echo \"No tests specified\" && exit 0",
+    "lint": "eslint ."
   },
   "author": "Mantas Silanskas",
   "license": "MIT",
@@ -15,5 +16,10 @@
     "dotenv": "^16.5.0",
     "node-cron": "^4.1.0",
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "eslint": "^9.28.0",
+    "globals": "^16.2.0"
   }
 }

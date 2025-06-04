@@ -1,4 +1,4 @@
-export function extractPRStatus(prInfo) {
+function extractPRStatus(prInfo) {
   const approvers = prInfo.participants
     .filter((p) => p.approved)
     .map((p) => p.user.display_name);

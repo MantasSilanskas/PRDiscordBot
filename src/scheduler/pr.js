@@ -7,6 +7,7 @@ import {
   scheduleRunAtNextWorkingHour,
 } from "../utils/time.js";
 
+// eslint-disable-next-line no-unused-vars
 let prInterval;
 let hasSchedulerRunOnce = false;
 
