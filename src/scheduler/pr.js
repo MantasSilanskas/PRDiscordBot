@@ -17,10 +17,10 @@ export async function schedulePRCheck(client) {
     return;
   }
 
-  const nowInVilnius = DateTime.now().setZone(env.timezone);
+  const nowInTimezone = DateTime.now().setZone(env.timezone);
 
-  if (isOutsideWorkingHours(nowInVilnius)) {
-    scheduleRunAtNextWorkingHour(nowInVilnius);
+  if (isOutsideWorkingHours(nowInTimezone)) {
+    scheduleRunAtNextWorkingHour(client, nowInTimezone);
     return;
   }
 

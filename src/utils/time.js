@@ -5,7 +5,7 @@ export function isOutsideWorkingHours(now) {
   return hour < 8 || hour >= 17;
 }
 
-export function scheduleRunAtNextWorkingHour(now) {
+export function scheduleRunAtNextWorkingHour(client, now) {
   let nextRun = now.set({ hour: 8, minute: 0, second: 0, millisecond: 0 });
 
   if (now.hour >= 17) {
@@ -27,5 +27,5 @@ export function scheduleRunAtNextWorkingHour(now) {
     )} (outside working hours in Lithuania). Next run in ${hours} hours ${minutes} minutes.`
   );
 
-  scheduleNextRun(msUntilNextRun);
+  scheduleNextRun(client, msUntilNextRun);
 }
