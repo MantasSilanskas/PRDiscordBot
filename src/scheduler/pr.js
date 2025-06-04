@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
 import { env } from "../config/config.js";
+import { handlePRCommand } from "../commands/pr.js";
 import { getTargetChannel, createFakeMessage } from "../services/discord.js";
 import {
   isOutsideWorkingHours,
@@ -11,7 +12,7 @@ let hasSchedulerRunOnce = false;
 
 export async function schedulePRCheck(client) {
   if (shouldSkipFirstRun()) {
-    scheduleNextRun(15 * 60 * 1000);
+    scheduleNextRun(client, 15 * 60 * 1000);
     return;
   }
 
@@ -29,7 +30,7 @@ export async function schedulePRCheck(client) {
 
   await handlePRCommand(fakeMessage);
 
-  scheduleNextRun(15 * 60 * 1000);
+  scheduleNextRun(client, 15 * 60 * 1000);
 }
 
 function shouldSkipFirstRun() {
@@ -45,6 +46,6 @@ function shouldSkipFirstRun() {
   return false;
 }
 
-export function scheduleNextRun(ms) {
-  prInterval = setTimeout(schedulePRCheck, ms);
+export function scheduleNextRun(client, ms) {
+  prInterval = setTimeout(() => schedulePRCheck(client), ms);
 }
