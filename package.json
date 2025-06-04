@@ -1,18 +1,19 @@
 {
   "name": "discordbot",
-  "version": "1.0.0",
-  "description": "test bot",
+  "version": "1.0.1",
+  "description": "A Discord bot that automatically checks and notifies your team about active Bitbucket pull requests. Designed to help teams stay on top of open PRs during working hours.",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/index.js",
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "author": "Mantas Silanskas",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "discord.js": "^14.19.3",
     "dotenv": "^16.5.0",
     "node-cron": "^4.1.0",
     "node-fetch": "^3.3.2"
-  },
-  "type": "module"
+  }
 }
