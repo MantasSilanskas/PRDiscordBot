@@ -56,6 +56,9 @@ async function postNewPRMessages(prs, existingPRMap, thread) {
     if (pr.state !== "OPEN") continue;
     const url = pr.links.html.href;
     if (existingPRMap.has(url)) continue;
+    if (pr.draft) {
+      continue;
+    }
 
     await thread.send(
       `[${pr.title}]\nAuthor: ${pr.author.display_name}\n${url}\n`
