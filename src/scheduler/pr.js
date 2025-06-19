@@ -1,7 +1,11 @@
 import { DateTime } from "luxon";
 import { env } from "../config/config.js";
 import { handlePRCommand } from "../commands/pr.js";
-import { getTargetChannel, createFakeMessage } from "../services/discord.js";
+import {
+  getTargetChannel,
+  createFakeMessage,
+  notifyError,
+} from "../services/discord.js";
 import {
   isOutsideWorkingHours,
   scheduleRunAtNextWorkingHour,
@@ -29,7 +33,12 @@ export async function schedulePRCheck(client) {
 
   const fakeMessage = createFakeMessage(channel);
 
-  await handlePRCommand(fakeMessage);
+  await handlePRCommand(fakeMessage, client).catch((error) => {
+    console.error("Error in handlePRCommand:", error);
+    notifyError(client, error).catch((err) =>
+      console.error("Failed to notify about error:", err)
+    );
+  });
 
   scheduleNextRun(client, 15 * 60 * 1000);
 }
