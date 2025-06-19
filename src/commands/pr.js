@@ -12,16 +12,15 @@ export async function handlePRCommand(message) {
   logHeader(message);
 
   await message.delete();
+  const threadName =
+    DateTime.now().setZone(env.timezone).toISODate() + " Pull requests!";
+  const thread = await getOrCreateThread(message, threadName);
+  const existingPRLinks = await getExistingPRLinks(thread);
 
   try {
     const prs = await fetchPullRequests(env.auth_token);
     const { activeCount, wipCount, haltedCount, filteredPRs } =
       categorizePRs(prs);
-
-    const threadName =
-      DateTime.now().setZone(env.timezone).toISODate() + " Pull requests!";
-    const thread = await getOrCreateThread(message, threadName);
-    const existingPRLinks = await getExistingPRLinks(thread);
 
     await postNewPRs(filteredPRs, existingPRLinks, thread);
     logFooter({ activeCount, wipCount, haltedCount });
