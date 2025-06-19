@@ -18,14 +18,6 @@ export async function handlePRCommand(message) {
     const { activeCount, wipCount, haltedCount, filteredPRs } =
       categorizePRs(prs);
 
-    if (filteredPRs.length === 0) {
-      logFooter({ activeCount, wipCount, haltedCount });
-      console.log(
-        "There are no active pull requests. Skipping thread creation."
-      );
-      return;
-    }
-
     const threadName =
       DateTime.now().setZone(env.timezone).toISODate() + " Pull requests!";
     const thread = await getOrCreateThread(message, threadName);
