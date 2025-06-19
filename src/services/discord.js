@@ -46,9 +46,9 @@ export async function getExistingPRLinks(thread) {
   return linkMap;
 }
 
-export async function postNewPRs(prs, existingPRMap, thread) {
+export async function postNewPRs(prs, existingPRMap, thread, client) {
   await postNewPRMessages(prs, existingPRMap, thread);
-  await updateClosedPRMessages(prs, existingPRMap);
+  await updateClosedPRMessages(prs, existingPRMap, client);
 }
 
 async function postNewPRMessages(prs, existingPRMap, thread) {
@@ -66,10 +66,12 @@ async function postNewPRMessages(prs, existingPRMap, thread) {
   }
 }
 
-async function updateClosedPRMessages(prs, existingPRMap) {
+async function updateClosedPRMessages(prs, existingPRMap, client) {
   const openUrls = new Set(prs.map((pr) => pr.links.html.href));
 
   for (const [url, msg] of existingPRMap.entries()) {
+    if (msg.author.id !== client.user.id) continue;
+
     if (openUrls.has(url)) continue;
 
     try {
@@ -98,5 +100,19 @@ export async function deleteMessageInThread(threadChannel, messageId) {
     }
   } catch (err) {
     console.error(`Failed to delete message ${messageId} in thread:`, err);
+  }
+}
+
+export async function notifyError(client, userId, error, context = "") {
+  try {
+    const user = await client.users.fetch(userId);
+    const errorMessage = error.stack || error.message || String(error);
+    const contextMessage = context ? `Context: ${context}\n` : "";
+
+    await user.send(
+      `❌ Error occurred!\n${contextMessage}\`\`\`\n${errorMessage}\n\`\`\``
+    );
+  } catch (dmErr) {
+    console.error("Failed to DM user about the error:", dmErr);
   }
 }

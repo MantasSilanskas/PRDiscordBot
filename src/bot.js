@@ -37,7 +37,7 @@ process.on("SIGINT", () => {
 });
 
 client.on("messageCreate", (message) => {
-  onMessageCreate(message);
+  onMessageCreate(message, client);
 });
 
 client.login(env.client_token);

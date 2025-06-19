@@ -1,6 +1,7 @@
-import { deleteMessageInThread } from "../services/discord.js";
+import { deleteMessageInThread, notifyError } from "../services/discord.js";
+import { env } from "../config/config.js";
 
-export async function handleDeleteMsgCommand(message, args) {
+export async function handleDeleteMsgCommand(message, args, client) {
   const messageId = args[0];
   const channel = message.channel;
 
@@ -20,5 +21,11 @@ export async function handleDeleteMsgCommand(message, args) {
     await deleteMessageInThread(channel, messageId);
   } catch (error) {
     console.error("Error handling deletemsg command:", error);
+    await notifyError(
+      client,
+      env.user_id,
+      error,
+      "Failed to handle !deletemsg command"
+    );
   }
 }

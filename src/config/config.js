@@ -10,4 +10,5 @@ export const env = {
   role_id: process.env.ROLE_ID,
   timezone: process.env.TIMEZONE,
   date_format: process.env.DATEFORMAT,
+  user_id: process.env.USER_ID,
 };
