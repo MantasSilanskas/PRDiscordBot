@@ -19,7 +19,10 @@ export async function handlePRCommand(message) {
       categorizePRs(prs);
 
     if (filteredPRs.length === 0) {
-      console.log("No new PRs to post. Skipping thread creation.");
+      logFooter({ activeCount, wipCount, haltedCount });
+      console.log(
+        "There are no active pull requests. Skipping thread creation."
+      );
       return;
     }
 
