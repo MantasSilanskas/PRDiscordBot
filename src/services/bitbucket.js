@@ -20,7 +20,7 @@ export async function fetchPullRequests(auth_token) {
 
 export async function fetchPullRequestDetails(prUrl, auth_token) {
   const match = prUrl.match(
-    /bitbucket\.org\/([^\/]+)\/([^\/]+)\/pull-requests\/(\d+)/
+    /bitbucket\.org\/([^/]+)\/([^/]+)\/pull-requests\/(\d+)/
   );
 
   if (!match) throw new Error(`Invalid PR URL: ${prUrl}`);
