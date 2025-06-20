@@ -35,6 +35,9 @@ TIMEZONE=Europe/Vilnius
 
 # Date format for thread titles or logs (Luxon format)
 DATEFORMAT=yyyy-MM-dd
+
+# Discord user ID to whom bot will sent DM when error occurs. 
+USER_ID=your-discord-id
 ```
 
 # 📝 Commands
