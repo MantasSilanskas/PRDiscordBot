@@ -82,7 +82,9 @@ async function updateClosedPRMessages(prs, existingPRMap, client) {
       if (msg.content === newContent) continue;
 
       await msg.edit(newContent);
-      console.log(`Updated PR  [${prInfo.title}] as ${prInfo.state}`);
+      console.log(
+        `Updated Pull Request by ${prInfo.author.display_name} - ${prInfo.title} as ${prInfo.state}`
+      );
     } catch (err) {
       console.error(`Failed to fetch/update closed PR: ${url}`, err);
     }
