@@ -22,7 +22,13 @@ export function createFakeMessage(channel) {
 }
 
 export async function getOrCreateThread(message, threadName) {
-  let thread = message.channel.threads.cache.find((t) => t.name === threadName);
+  let thread;
+
+  if (message.channel.isThread()) {
+    thread = message.channel;
+  } else {
+    thread = message.channel.threads.cache.find((t) => t.name === threadName);
+  }
 
   if (!thread) {
     thread = await message.channel.threads.create({ name: threadName });
