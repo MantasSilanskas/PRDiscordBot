@@ -16,6 +16,7 @@ function createFakeInteraction(channel) {
     id: "scheduled_pr_check",
     user: { username: "scheduler_bot" },
     channel,
+    timestamp: new Date().toISOString(),
     deferReply: async () => {},
     editReply: async (response) => {
       console.log("✅ [Scheduler Reply]", response);

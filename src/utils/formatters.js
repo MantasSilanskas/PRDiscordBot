@@ -1,33 +1,42 @@
 function extractPRStatus(prInfo) {
-  const approvers = prInfo.participants
-    .filter((p) => p.approved)
-    .map((p) => p.user.display_name);
+  const participants = Array.isArray(prInfo.participants)
+    ? prInfo.participants
+    : [];
+  const approvers = participants
+    .filter((p) => p?.approved)
+    .map((p) => p.user?.display_name || "Unknown");
 
-  const closer = prInfo.closed_by?.display_name || "Unknown";
-  const declineReason = prInfo.reason || "No reason provided";
-
-  return { approvers, closer, declineReason };
+  return {
+    approvers,
+    closer: prInfo.closed_by?.display_name ?? "Unknown",
+    declineReason: prInfo.reason?.trim() || "No reason provided",
+    title: prInfo.title?.trim() || "Untitled PR",
+    author: prInfo.author?.display_name || "Unknown",
+    url: prInfo.links?.html?.href || "No URL",
+    state: prInfo.state?.toUpperCase() || "UNKNOWN",
+  };
 }
 
 export function formatStatusMessage(prInfo) {
-  const { approvers, closer, declineReason } = extractPRStatus(prInfo);
-  const titleLine = `[${prInfo.title}]\nAuthor: ${prInfo.author.display_name}`;
-  const urlLine = prInfo.links.html.href;
+  const { approvers, closer, declineReason, title, author, url, state } =
+    extractPRStatus(prInfo);
 
-  if (prInfo.state === "MERGED") {
+  const titleLine = `📝 ${title}\n👤 Author: ${author}`;
+
+  if (state === "MERGED") {
     return [
-      "✅ Merged ✅",
-      `Approved by: ${approvers.join(", ") || "None"}`,
+      "✅ **Pull Request Merged** ✅",
+      `🔍 Approved by: ${approvers.length ? approvers.join(", ") : "None"}`,
       titleLine,
-      urlLine,
+      `🔗 ${url}`,
     ].join("\n");
   }
 
   return [
-    "❌ Declined ❌",
-    `Declined by: ${closer}`,
-    `Reason: ${declineReason}`,
+    "❌ **Pull Request Declined** ❌",
+    `🛑 Declined by: ${closer}`,
+    `📄 Reason: ${declineReason}`,
     titleLine,
-    urlLine,
+    `🔗 ${url}`,
   ].join("\n");
 }

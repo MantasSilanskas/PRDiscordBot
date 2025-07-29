@@ -5,51 +5,64 @@ import { fetchPullRequestDetails } from "./bitbucket.js";
 
 export function getTargetChannel(client, channelId) {
   const channel = client.channels.cache.get(channelId);
-  if (!channel || !channel.isTextBased()) {
-    console.error("❌ Target channel not found or not text-based.");
+
+  if (!channel?.isTextBased?.()) {
+    console.error(
+      `❌ Invalid target channel (${channelId}): not found or not text-based.`
+    );
     return null;
   }
+
   return channel;
 }
 
-export function createFakeMessage(channel) {
-  return {
-    id: `AUTO-${new Date().toISOString().slice(0, 10)}`,
-    author: { username: "AutoScheduler" },
-    delete: async () => {},
-    channel: channel,
-  };
-}
-
 export async function getOrCreateThread(channel, threadName) {
-  let thread;
-
-  if (channel.isThread()) {
-    thread = channel;
-  } else {
-    thread = channel.threads.cache.find((t) => t.name === threadName);
+  if (channel.isThread() && channel.name === threadName) {
+    return channel;
   }
 
-  if (!thread) {
-    thread = await channel.threads.create({ name: threadName });
-    await thread.send(roleMention(env.role_id));
+  const existingThread = channel.threads?.cache?.find(
+    (t) => t.name === threadName
+  );
+  if (existingThread) {
+    return existingThread;
   }
 
-  return thread;
+  try {
+    const newThread = await channel.threads.create({ name: threadName });
+    await newThread.send(roleMention(env.role_id));
+    return newThread;
+  } catch (error) {
+    console.error(
+      `❌ Failed to create or send message to thread "${threadName}":`,
+      error
+    );
+    throw error;
+  }
 }
 
 export async function getExistingPRLinks(thread) {
-  const existingMessages = await thread.messages.fetch({ limit: 100 });
-  const linkMap = new Map();
+  try {
+    const messages = await thread.messages.fetch({ limit: 100 });
+    const linkMap = new Map();
 
-  existingMessages.forEach((msg) => {
-    const urlMatch = msg.content.match(/https:\/\/bitbucket\.org\/[^\s]+/);
-    if (urlMatch) {
-      linkMap.set(urlMatch[0], msg);
+    for (const message of messages.values()) {
+      const match = message.content.match(
+        /https:\/\/bitbucket\.org\/[\w-]+\/[\w-]+\/pull-requests\/\d+/i
+      );
+      if (match) {
+        linkMap.set(match[0], message);
+      }
     }
-  });
 
-  return linkMap;
+    return linkMap;
+  } catch (error) {
+    console.error(
+      `❌ Failed to fetch messages from thread "${thread.name}":`,
+      error
+    );
+    return new Map();
+  }
 }
 
 export async function postNewPRs(prs, existingPRMap, thread, client) {
@@ -57,22 +70,28 @@ export async function postNewPRs(prs, existingPRMap, thread, client) {
   await updateClosedPRMessages(prs, existingPRMap, client);
 }
 
-async function postNewPRMessages(prs, existingPRMap, thread) {
-  for (const pr of prs) {
-    if (pr.state !== "OPEN") continue;
-    const url = pr.links.html.href;
-    if (existingPRMap.has(url)) continue;
-    if (pr.draft) {
-      continue;
-    }
+export async function postNewPRMessages(prs, existingPRMap, thread) {
+  const newPRs = prs.filter(
+    (pr) =>
+      pr.state === "OPEN" && !pr.draft && !existingPRMap.has(pr.links.html.href)
+  );
 
-    await thread.send(
-      `[${pr.title}]\nAuthor: ${pr.author.display_name}\n${url}\n`
-    );
-  }
+  await Promise.all(
+    newPRs.map(async (pr) => {
+      try {
+        const title = pr.title?.trim() || "Untitled PR";
+        const author = pr.author?.display_name?.trim() || "Unknown";
+        const url = pr.links.html.href;
+
+        await thread.send(`[${title}]\nAuthor: ${author}\n${url}\n`);
+      } catch (error) {
+        console.error(`❌ Failed to send message for PR "${pr.title}":`, error);
+      }
+    })
+  );
 }
 
-async function updateClosedPRMessages(prs, existingPRMap, client) {
+export async function updateClosedPRMessages(prs, existingPRMap, client) {
   const openUrls = new Set(prs.map((pr) => pr.links.html.href));
 
   for (const [url, msg] of existingPRMap.entries()) {
@@ -82,17 +101,20 @@ async function updateClosedPRMessages(prs, existingPRMap, client) {
 
     try {
       const prInfo = await fetchPullRequestDetails(url, env.auth_token);
+
       if (!["MERGED", "DECLINED"].includes(prInfo.state)) continue;
 
       const newContent = formatStatusMessage(prInfo);
+
       if (msg.content === newContent) continue;
 
       await msg.edit(newContent);
+
       console.log(
-        `✅ Updated Pull Request by ${prInfo.author.display_name} - ${prInfo.title} as ${prInfo.state}`
+        `✅ Updated PR "${prInfo.title}" by ${prInfo.author.display_name} — Status: ${prInfo.state}`
       );
     } catch (err) {
-      console.error(`❌ Failed to fetch/update closed PR: ${url}`, err);
+      console.error(`❌ Error updating PR message for ${url}:`, err);
     }
   }
 }
