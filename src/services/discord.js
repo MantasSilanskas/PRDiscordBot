@@ -102,7 +102,14 @@ export async function deleteMessageInThread(threadChannel, messageId) {
     const messageToDelete = await threadChannel.messages.fetch(messageId);
     if (messageToDelete) {
       await messageToDelete.delete();
-      console.log(`✅ Message ${messageId} deleted from thread.`);
+      const content = messageToDelete.content || "[No text content]";
+      console.log(
+        `✅ Deleted message ${messageId} from thread.\n` +
+          `📝 Content:\n${content
+            .split("\n")
+            .map((line) => "    " + line)
+            .join("\n")}`
+      );
     } else {
       console.warn(`🟠 Message ${messageId} not found in thread.`);
     }
