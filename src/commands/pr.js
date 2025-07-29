@@ -83,8 +83,10 @@ export default {
 
     logFooter({ activeCount, wipCount, haltedCount });
 
+    const now = new Date().toLocaleTimeString();
+
     await interaction.editReply({
-      content: `✅ Active Pull Request list has been updated susccessfully!`,
+      content: `✅ Active Pull Request list has been updated successfully at ${now}!`,
     });
   },
 };
