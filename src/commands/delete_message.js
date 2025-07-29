@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlagsBitField } from "discord.js";
 import { deleteMessageInThread, notifyError } from "../services/discord.js";
 import { env } from "../config/config.js";
 
@@ -14,9 +14,11 @@ export default {
     ),
 
   async execute(interaction, client) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({
+      flags: MessageFlagsBitField.Flags.Ephemeral,
+    });
 
-    const messageId = interaction.options.getString("messageid");
+    const messageId = interaction.options.getString("id");
     const channel = interaction.channel;
 
     if (!channel?.isThread()) {
