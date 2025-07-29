@@ -40,10 +40,11 @@ DATEFORMAT=yyyy-MM-dd
 USER_ID=your-discord-id
 ```
 
-# 📝 Commands
+# 📝 Slash Commands
 
-- !pr — Manually trigger a pull request check. Threads are created in the configured channel (CHANNEL_ID), so this command must be sent in that channel to work properly.
-- !deletemsg <messageId> — Delete a specific message from the current thread by message ID. Must be run inside a thread.
+- `/pr` — Manually trigger a pull request check. This command can be used anywhere, and pull request threads will be created in the configured channel (`CHANNEL_ID`).
+- `/deletemsg <messageId>` — Delete a specific message by its message ID from the current thread. This command **must be run inside a thread**.
+
 
 # 💻 Technologies
 
