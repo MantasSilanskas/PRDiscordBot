@@ -6,7 +6,7 @@ import { fetchPullRequestDetails } from "./bitbucket.js";
 export function getTargetChannel(client, channelId) {
   const channel = client.channels.cache.get(channelId);
   if (!channel || !channel.isTextBased()) {
-    console.error("Target channel not found or not text-based.");
+    console.error("❌ Target channel not found or not text-based.");
     return null;
   }
   return channel;
@@ -21,17 +21,17 @@ export function createFakeMessage(channel) {
   };
 }
 
-export async function getOrCreateThread(message, threadName) {
+export async function getOrCreateThread(channel, threadName) {
   let thread;
 
-  if (message.channel.isThread()) {
-    thread = message.channel;
+  if (channel.isThread()) {
+    thread = channel;
   } else {
-    thread = message.channel.threads.cache.find((t) => t.name === threadName);
+    thread = channel.threads.cache.find((t) => t.name === threadName);
   }
 
   if (!thread) {
-    thread = await message.channel.threads.create({ name: threadName });
+    thread = await channel.threads.create({ name: threadName });
     await thread.send(roleMention(env.role_id));
   }
 
@@ -89,10 +89,10 @@ async function updateClosedPRMessages(prs, existingPRMap, client) {
 
       await msg.edit(newContent);
       console.log(
-        `Updated Pull Request by ${prInfo.author.display_name} - ${prInfo.title} as ${prInfo.state}`
+        `✅ Updated Pull Request by ${prInfo.author.display_name} - ${prInfo.title} as ${prInfo.state}`
       );
     } catch (err) {
-      console.error(`Failed to fetch/update closed PR: ${url}`, err);
+      console.error(`❌ Failed to fetch/update closed PR: ${url}`, err);
     }
   }
 }
@@ -102,12 +102,12 @@ export async function deleteMessageInThread(threadChannel, messageId) {
     const messageToDelete = await threadChannel.messages.fetch(messageId);
     if (messageToDelete) {
       await messageToDelete.delete();
-      console.log(`Message ${messageId} deleted from thread.`);
+      console.log(`✅ Message ${messageId} deleted from thread.`);
     } else {
-      console.warn(`Message ${messageId} not found in thread.`);
+      console.warn(`🟠 Message ${messageId} not found in thread.`);
     }
   } catch (err) {
-    console.error(`Failed to delete message ${messageId} in thread:`, err);
+    console.error(`❌ Failed to delete message ${messageId} in thread:`, err);
   }
 }
 
@@ -121,6 +121,6 @@ export async function notifyError(client, userId, error, context = "") {
       `❌ Error occurred!\n${contextMessage}\`\`\`\n${errorMessage}\n\`\`\``
     );
   } catch (dmErr) {
-    console.error("Failed to DM user about the error:", dmErr);
+    console.error("❌ Failed to DM user about the error:", dmErr);
   }
 }
