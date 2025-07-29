@@ -1,31 +1,49 @@
+import { SlashCommandBuilder } from "discord.js";
 import { deleteMessageInThread, notifyError } from "../services/discord.js";
 import { env } from "../config/config.js";
 
-export async function handleDeleteMsgCommand(message, args, client) {
-  const messageId = args[0];
-  const channel = message.channel;
+export default {
+  data: new SlashCommandBuilder()
+    .setName("deletemsg")
+    .setDescription("Delete a message inside the current thread by message ID")
+    .addStringOption((option) =>
+      option
+        .setName("messageid")
+        .setDescription("The ID of the message to delete")
+        .setRequired(true)
+    ),
 
-  if (!channel?.isThread()) {
-    console.log("This command must be run in a thread.");
-    await message.reply("Please run this command inside a thread.");
-    return;
-  }
+  async execute(interaction, client) {
+    await interaction.deferReply({ ephemeral: true });
 
-  if (!messageId) {
-    await message.reply("Please provide a message ID to delete.");
-    return;
-  }
+    const messageId = interaction.options.getString("messageid");
+    const channel = interaction.channel;
 
-  try {
-    await message.delete();
-    await deleteMessageInThread(channel, messageId);
-  } catch (error) {
-    console.error("Error handling deletemsg command:", error);
-    await notifyError(
-      client,
-      env.user_id,
-      error,
-      "Failed to handle !deletemsg command"
-    );
-  }
-}
+    if (!channel?.isThread()) {
+      await interaction.editReply(
+        "❌ This command must be run inside a thread."
+      );
+      return;
+    }
+
+    try {
+      await deleteMessageInThread(channel, messageId);
+
+      await interaction.editReply(
+        `✅ Message with ID \`${messageId}\` deleted successfully.`
+      );
+    } catch (error) {
+      console.error("❌ Error handling deletemsg command:", error);
+      await notifyError(
+        client,
+        env.user_id,
+        error,
+        "Failed to handle /deletemsg command"
+      );
+
+      await interaction.editReply(
+        "❌ Failed to delete the message. Please check the ID and try again."
+      );
+    }
+  },
+};

@@ -1,11 +1,7 @@
 import { DateTime } from "luxon";
 import { env } from "../config/config.js";
-import { handlePRCommand } from "../commands/pr.js";
-import {
-  getTargetChannel,
-  createFakeMessage,
-  notifyError,
-} from "../services/discord.js";
+import prCommand from "../commands/pr.js";
+import { getTargetChannel, notifyError } from "../services/discord.js";
 import {
   isOutsideWorkingHours,
   scheduleRunAtNextWorkingHour,
@@ -14,6 +10,21 @@ import {
 // eslint-disable-next-line no-unused-vars
 let prInterval;
 let hasSchedulerRunOnce = false;
+
+function createFakeInteraction(channel) {
+  return {
+    id: "scheduled_pr_check",
+    user: { username: "scheduler_bot" },
+    channel,
+    deferReply: async () => {},
+    editReply: async (response) => {
+      console.log("✅ [Scheduler Reply]", response);
+    },
+    options: {
+      getString: () => null,
+    },
+  };
+}
 
 export async function schedulePRCheck(client) {
   if (shouldSkipFirstRun()) {
@@ -31,12 +42,12 @@ export async function schedulePRCheck(client) {
   const channel = getTargetChannel(client, env.channel_id);
   if (!channel) return;
 
-  const fakeMessage = createFakeMessage(channel);
+  const fakeInteraction = createFakeInteraction(channel);
 
-  await handlePRCommand(fakeMessage, client).catch((error) => {
-    console.error("Error in handlePRCommand:", error);
+  await prCommand.execute(fakeInteraction, client).catch((error) => {
+    console.error("❌ Error in prCommand.execute:", error);
     notifyError(client, error).catch((err) =>
-      console.error("Failed to notify about error:", err)
+      console.error("❌ Failed to notify about error:", err)
     );
   });
 
@@ -46,7 +57,7 @@ export async function schedulePRCheck(client) {
 function shouldSkipFirstRun() {
   if (!hasSchedulerRunOnce) {
     console.log(
-      `[Auto] Skipping first scheduled PR check after startup (${DateTime.now()
+      `🟠 [Auto] Skipping first scheduled PR check after startup (${DateTime.now()
         .setZone(env.timezone)
         .toFormat("HH:mm:ss")})`
     );

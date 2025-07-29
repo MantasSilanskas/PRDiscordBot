@@ -1,11 +1,11 @@
 import { DateTime } from "luxon";
 import { env } from "../config/config.js";
 
-export function logHeader(message) {
+export function logHeader(interaction) {
   const now = DateTime.now().setZone(env.timezone).toFormat(env.date_format);
   console.log("=".repeat(97));
   console.log(
-    `========== Date: ${now} Call ID: ${message.id} User: ${message.author.username} ==========`
+    `========== Date: ${now} Call ID: ${interaction.id} User: ${interaction.user.username} ==========`
   );
 }
 

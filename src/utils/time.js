@@ -22,7 +22,7 @@ export function scheduleRunAtNextWorkingHour(client, now) {
   const minutes = totalMinutes % 60;
 
   console.log(
-    `[Auto] Skipping PR check: ${now.toFormat(
+    `🟠 [Auto] Skipping PR check: ${now.toFormat(
       "HH:mm"
     )} (outside working hours in Lithuania). Next run in ${hours} hours ${minutes} minutes.`
   );
