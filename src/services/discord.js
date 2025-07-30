@@ -83,7 +83,8 @@ export async function postNewPRMessages(prs, existingPRMap, thread) {
         const author = pr.author?.display_name?.trim() || "Unknown";
         const url = pr.links.html.href;
 
-        await thread.send(`[${title}]\nAuthor: ${author}\n${url}\n`);
+        const message = `📝 ${title}\n👤 Author: ${author}\n🔗 ${url}`;
+        await thread.send(message);
       } catch (error) {
         console.error(`❌ Failed to send message for PR "${pr.title}":`, error);
       }
