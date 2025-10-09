@@ -3,6 +3,7 @@ import { DateTime } from "luxon";
 import { env } from "../config/config.js";
 import { logHeader, logFooter } from "../utils/logger.js";
 import {
+  updateClosedPRMessages,
   getOrCreateThread,
   getExistingPRLinks,
   postNewPRs,
@@ -25,27 +26,6 @@ export default {
 
     const threadName =
       DateTime.now().setZone(env.timezone).toISODate() + " Pull requests!";
-
-    let activeCount, wipCount, haltedCount, filteredPRs;
-    try {
-      const prs = await fetchPullRequests(env.auth_token);
-      ({ activeCount, wipCount, haltedCount, filteredPRs } =
-        categorizePRs(prs));
-    } catch (err) {
-      console.error("❌ PR command failed:", err);
-      await notifyError(client, env.user_id, err, "Failed to fetch PRs");
-      return await interaction.editReply({
-        content: "❌ Failed to fetch pull requests.",
-      });
-    }
-
-    if (!filteredPRs || filteredPRs.length === 0) {
-      logFooter({ activeCount, wipCount, haltedCount });
-      const now = new Date().toLocaleTimeString();
-      return await interaction.editReply({
-        content: `ℹ️ No new pull requests found as of ${now}.`,
-      });
-    }
 
     let thread;
     try {
@@ -76,6 +56,31 @@ export default {
       );
       return await interaction.editReply({
         content: "❌ Failed to fetch existing PR links.",
+      });
+    }
+
+    let activeCount, wipCount, haltedCount, filteredPRs;
+    try {
+      const prs = await fetchPullRequests(env.auth_token);
+      ({ activeCount, wipCount, haltedCount, filteredPRs } =
+        categorizePRs(prs));
+    } catch (err) {
+      console.error("❌ PR command failed:", err);
+      await notifyError(client, env.user_id, err, "Failed to fetch PRs");
+      return await interaction.editReply({
+        content: "❌ Failed to fetch pull requests.",
+      });
+    }
+
+    if (!filteredPRs || filteredPRs.length === 0) {
+      console.info(
+        "ℹ️ There are no new pull requests to post. But will check if any existing PRs status changed."
+      );
+      await updateClosedPRMessages([], existingPRLinks, client);
+      logFooter({ activeCount, wipCount, haltedCount });
+      const now = new Date().toLocaleTimeString();
+      return await interaction.editReply({
+        content: `ℹ️ No new pull requests found as of ${now}.`,
       });
     }
 
