@@ -16,7 +16,7 @@ export function getTargetChannel(client, channelId) {
   return channel;
 }
 
-export async function getOrCreateThread(channel, threadName) {
+export async function getThread(channel, threadName) {
   if (channel.isThread() && channel.name === threadName) {
     return channel;
   }
@@ -27,7 +27,9 @@ export async function getOrCreateThread(channel, threadName) {
   if (existingThread) {
     return existingThread;
   }
+}
 
+export async function createThread(channel, threadName) {
   try {
     const newThread = await channel.threads.create({ name: threadName });
     await newThread.send(roleMention(env.role_id));

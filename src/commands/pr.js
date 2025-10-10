@@ -4,7 +4,8 @@ import { env } from "../config/config.js";
 import { logHeader, logFooter } from "../utils/logger.js";
 import {
   updateClosedPRMessages,
-  getOrCreateThread,
+  getThread,
+  createThread,
   getExistingPRLinks,
   postNewPRs,
   notifyError,
@@ -43,7 +44,13 @@ export default {
     let thread;
     if (filteredPRs.length > 0) {
       try {
-        thread = await getOrCreateThread(interaction.channel, threadName);
+        thread = await getThread(interaction.channel, threadName);
+        if (!thread) {
+          console.info(
+            `🔵 No existing thread named "${threadName}" found. Creating a new one...`
+          );
+          thread = await createThread(interaction.channel, threadName);
+        }
       } catch (err) {
         console.error("❌ PR command failed: ", err);
         await notifyError(
@@ -76,23 +83,21 @@ export default {
 
     if (existingPRLinks.size >= 1) {
       console.info(
-        "ℹ️ Active Pull request(s) exist already in the thread. Checking for updates..."
+        "🔵 Active pull requests already exist in the thread. Checking for changes."
       );
       let count;
       count = await updateClosedPRMessages([], existingPRLinks, client);
       logFooter({ activeCount, wipCount, haltedCount });
       const now = new Date().toLocaleTimeString();
       if (count > 0) {
-        console.info(`ℹ️ Updated status of ${count} active pull request(s).`);
+        console.info(`🔵 Updated status of ${count} active pull request(s).`);
         return await interaction.editReply({
-          content: `ℹ️ Updated status of ${count} active pull request(s) as of ${now}.`,
+          content: `🔵 Updated status of ${count} active pull request(s) as of ${now}.`,
         });
       } else {
-        console.info(
-          "ℹ️ There was none active pull request(s) that needed updating."
-        );
+        console.info("🔵 All active pull requests are already up to date.");
         return await interaction.editReply({
-          content: `ℹ️ There was none active pull request(s) that needed updating as of ${now}.`,
+          content: `🔵 There was none active pull request(s) that needed updating as of ${now}.`,
         });
       }
     }
