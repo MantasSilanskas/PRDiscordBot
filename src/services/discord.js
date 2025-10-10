@@ -69,7 +69,7 @@ export async function getExistingPRLinks(thread) {
 
 export async function postNewPRs(prs, existingPRMap, thread, client) {
   await postNewPRMessages(prs, existingPRMap, thread);
-  await updateClosedPRMessages(prs, existingPRMap, client);
+  await updateActivePRMessages(prs, existingPRMap, client);
 }
 
 export async function postNewPRMessages(prs, existingPRMap, thread) {
@@ -94,7 +94,7 @@ export async function postNewPRMessages(prs, existingPRMap, thread) {
   );
 }
 
-export async function updateClosedPRMessages(prs, existingPRMap, client) {
+export async function updateActivePRMessages(prs, existingPRMap, client) {
   const openUrls = new Set(prs.map((pr) => pr.links.html.href));
   let updatedCount = 0;
 

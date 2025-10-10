@@ -3,7 +3,7 @@ import { DateTime } from "luxon";
 import { env } from "../config/config.js";
 import { logHeader, logFooter } from "../utils/logger.js";
 import {
-  updateClosedPRMessages,
+  updateActivePRMessages,
   getThread,
   createThread,
   getExistingPRLinks,
@@ -43,7 +43,7 @@ export default {
 
     let thread;
     thread = await getThread(interaction.channel, threadName);
-    if (filteredPRs.length > 0 && thread) {
+    if (filteredPRs.length > 0 && !thread) {
       try {
         console.info(
           `🔵 No existing thread named "${threadName}" found. Creating a new one...`
@@ -79,12 +79,22 @@ export default {
       });
     }
 
+    try {
+      await postNewPRs(filteredPRs, existingPRLinks, thread, client);
+    } catch (err) {
+      console.error("❌ PR command failed:", err);
+      await notifyError(client, env.user_id, err, "Failed to post new PRs");
+      return await interaction.editReply({
+        content: "❌ Failed to post new pull requests.",
+      });
+    }
+
     if (existingPRLinks.size >= 1) {
       console.info(
         "🔵 Active pull requests already exist in the thread. Checking for changes."
       );
       let count;
-      count = await updateClosedPRMessages([], existingPRLinks, client);
+      count = await updateActivePRMessages([], existingPRLinks, client);
       logFooter({ activeCount, wipCount, haltedCount });
       const now = new Date().toLocaleTimeString();
       if (count > 0) {
@@ -98,16 +108,6 @@ export default {
           content: `🔵 There was none active pull request(s) that needed updating as of ${now}.`,
         });
       }
-    }
-
-    try {
-      await postNewPRs(filteredPRs, existingPRLinks, thread, client);
-    } catch (err) {
-      console.error("❌ PR command failed:", err);
-      await notifyError(client, env.user_id, err, "Failed to post new PRs");
-      return await interaction.editReply({
-        content: "❌ Failed to post new pull requests.",
-      });
     }
 
     logFooter({ activeCount, wipCount, haltedCount });
