@@ -94,6 +94,7 @@ export async function postNewPRMessages(prs, existingPRMap, thread) {
 
 export async function updateClosedPRMessages(prs, existingPRMap, client) {
   const openUrls = new Set(prs.map((pr) => pr.links.html.href));
+  let updatedCount = 0;
 
   for (const [url, msg] of existingPRMap.entries()) {
     if (msg.author.id !== client.user.id) continue;
@@ -110,6 +111,7 @@ export async function updateClosedPRMessages(prs, existingPRMap, client) {
       if (msg.content === newContent) continue;
 
       await msg.edit(newContent);
+      updatedCount++;
 
       console.log(
         `✅ Updated PR "${prInfo.title}" by ${prInfo.author.display_name} — Status: ${prInfo.state}`
@@ -118,6 +120,8 @@ export async function updateClosedPRMessages(prs, existingPRMap, client) {
       console.error(`❌ Error updating PR message for ${url}:`, err);
     }
   }
+
+  return updatedCount;
 }
 
 export async function deleteMessageInThread(threadChannel, messageId) {

@@ -76,14 +76,25 @@ export default {
 
     if (existingPRLinks.size >= 1) {
       console.info(
-        "ℹ️ There are no new pull requests to post. But will check if any existing PRs status changed."
+        "ℹ️ Active Pull request(s) exist already in the thread. Checking for updates..."
       );
-      await updateClosedPRMessages([], existingPRLinks, client);
+      let count;
+      count = await updateClosedPRMessages([], existingPRLinks, client);
       logFooter({ activeCount, wipCount, haltedCount });
       const now = new Date().toLocaleTimeString();
-      return await interaction.editReply({
-        content: `ℹ️ No new pull requests found as of ${now}.`,
-      });
+      if (count > 0) {
+        console.info(`ℹ️ Updated status of ${count} active pull request(s).`);
+        return await interaction.editReply({
+          content: `ℹ️ Updated status of ${count} active pull request(s) as of ${now}.`,
+        });
+      } else {
+        console.info(
+          "ℹ️ There was none active pull request(s) that needed updating."
+        );
+        return await interaction.editReply({
+          content: `ℹ️ There was none active pull request(s) that needed updating as of ${now}.`,
+        });
+      }
     }
 
     try {
