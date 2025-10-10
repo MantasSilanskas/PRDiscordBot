@@ -27,20 +27,35 @@ export default {
     const threadName =
       DateTime.now().setZone(env.timezone).toISODate() + " Pull requests!";
 
-    let thread;
+    let activeCount, wipCount, haltedCount, filteredPRs;
     try {
-      thread = await getOrCreateThread(interaction.channel, threadName);
+      const prs = await fetchPullRequests(env.auth_token);
+      ({ activeCount, wipCount, haltedCount, filteredPRs } =
+        categorizePRs(prs));
     } catch (err) {
-      console.error("❌ PR command failed: ", err);
-      await notifyError(
-        client,
-        env.user_id,
-        err,
-        "Getting or creating thread failed"
-      );
+      console.error("❌ PR command failed:", err);
+      await notifyError(client, env.user_id, err, "Failed to fetch PRs");
       return await interaction.editReply({
-        content: "❌ Failed to get or create the PR thread.",
+        content: "❌ Failed to fetch pull requests.",
       });
+    }
+
+    let thread;
+    if (filteredPRs.length > 0) {
+      try {
+        thread = await getOrCreateThread(interaction.channel, threadName);
+      } catch (err) {
+        console.error("❌ PR command failed: ", err);
+        await notifyError(
+          client,
+          env.user_id,
+          err,
+          "Getting or creating thread failed"
+        );
+        return await interaction.editReply({
+          content: "❌ Failed to get or create the PR thread.",
+        });
+      }
     }
 
     let existingPRLinks;
@@ -59,20 +74,7 @@ export default {
       });
     }
 
-    let activeCount, wipCount, haltedCount, filteredPRs;
-    try {
-      const prs = await fetchPullRequests(env.auth_token);
-      ({ activeCount, wipCount, haltedCount, filteredPRs } =
-        categorizePRs(prs));
-    } catch (err) {
-      console.error("❌ PR command failed:", err);
-      await notifyError(client, env.user_id, err, "Failed to fetch PRs");
-      return await interaction.editReply({
-        content: "❌ Failed to fetch pull requests.",
-      });
-    }
-
-    if (!filteredPRs || filteredPRs.length === 0) {
+    if (existingPRLinks.size >= 1) {
       console.info(
         "ℹ️ There are no new pull requests to post. But will check if any existing PRs status changed."
       );
