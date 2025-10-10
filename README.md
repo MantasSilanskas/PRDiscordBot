@@ -6,6 +6,7 @@ A Discord bot that automatically checks and notifies your team about active Bitb
 
 - ✅ Automatically fetches open PRs from Bitbucket;
 - 📌 Posts new PRs into a dedicated Discord thread;
+- 🔄 Automatically updates PR statuses in the Discord thread when they are declined or merged;
 - ⏰ Schedules checks every 15 minutes during work hours (08:00–17:00) in given timezone;
 - 🚫 Skips checks outside working hours, weekends and on first boot;
 - 🧹 Allows deletion of specific messages from the thread using a command;
