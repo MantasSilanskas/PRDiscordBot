@@ -42,15 +42,13 @@ export default {
     }
 
     let thread;
-    if (filteredPRs.length > 0) {
+    thread = await getThread(interaction.channel, threadName);
+    if (filteredPRs.length > 0 && thread) {
       try {
-        thread = await getThread(interaction.channel, threadName);
-        if (!thread) {
-          console.info(
-            `🔵 No existing thread named "${threadName}" found. Creating a new one...`
-          );
-          thread = await createThread(interaction.channel, threadName);
-        }
+        console.info(
+          `🔵 No existing thread named "${threadName}" found. Creating a new one...`
+        );
+        thread = await createThread(interaction.channel, threadName);
       } catch (err) {
         console.error("❌ PR command failed: ", err);
         await notifyError(
