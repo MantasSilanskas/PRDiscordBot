@@ -10,7 +10,8 @@ A Discord bot that automatically checks and notifies your team about active Bitb
 - ⏰ Schedules checks every 15 minutes during work hours (08:00–17:00) in given timezone;
 - 🚫 Skips checks outside working hours, weekends and on first boot;
 - 🧹 Allows deletion of specific messages from the thread using a command;
-- 📦 Clean, modular code structure for easy maintenance and scaling
+- 📦 Clean, modular code structure for easy maintenance and scaling;
+- ⚠️ Sends error notifications to a selected user when something goes wrong;
 
 # ⚙️ Configuration
 
