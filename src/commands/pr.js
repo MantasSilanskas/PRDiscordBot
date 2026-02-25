@@ -46,7 +46,7 @@ export default {
     if (filteredPRs.length > 0 && !thread) {
       try {
         console.info(
-          `🔵 No existing thread named "${threadName}" found. Creating a new one...`
+          `🔵 No existing thread named "${threadName}" found. Creating a new one...`,
         );
         thread = await createThread(interaction.channel, threadName);
       } catch (err) {
@@ -55,7 +55,7 @@ export default {
           client,
           env.user_id,
           err,
-          "Getting or creating thread failed"
+          "Getting or creating thread failed",
         );
         return await interaction.editReply({
           content: "❌ Failed to get or create the PR thread.",
@@ -72,7 +72,7 @@ export default {
         client,
         env.user_id,
         err,
-        "Fetching existing PR links failed"
+        "Fetching existing PR links failed",
       );
       return await interaction.editReply({
         content: "❌ Failed to fetch existing PR links.",
@@ -91,7 +91,7 @@ export default {
 
     if (existingPRLinks.size >= 1) {
       console.info(
-        "🔵 Active pull requests already exist in the thread. Checking for changes."
+        "🔵 Active pull requests already exist in the thread. Checking for changes.",
       );
       let count;
       count = await updateActivePRMessages([], existingPRLinks, client);

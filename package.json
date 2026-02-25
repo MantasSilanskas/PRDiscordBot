@@ -12,14 +12,14 @@
   "author": "Mantas Silanskas",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "^14.19.3",
-    "dotenv": "^16.5.0",
-    "node-cron": "^4.1.0",
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.3.1",
+    "node-cron": "^4.2.1",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.28.0",
-    "eslint": "^9.28.0",
-    "globals": "^16.2.0"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.2",
+    "globals": "^17.3.0"
   }
 }

@@ -4,10 +4,10 @@ export async function fetchPullRequests(auth_token) {
     {
       method: "GET",
       headers: {
-        Authorization: auth_token,
+        Authorization: `Bearer ${auth_token}`,
         Accept: "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -20,7 +20,7 @@ export async function fetchPullRequests(auth_token) {
 
 export async function fetchPullRequestDetails(prUrl, auth_token) {
   const match = prUrl.match(
-    /bitbucket\.org\/([^/]+)\/([^/]+)\/pull-requests\/(\d+)/
+    /bitbucket\.org\/([^/]+)\/([^/]+)\/pull-requests\/(\d+)/,
   );
 
   if (!match) throw new Error(`Invalid PR URL: ${prUrl}`);
@@ -32,10 +32,10 @@ export async function fetchPullRequestDetails(prUrl, auth_token) {
     {
       method: "GET",
       headers: {
-        Authorization: auth_token,
+        Authorization: `Bearer ${auth_token}`,
         Accept: "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -58,7 +58,7 @@ export function categorizePRs(prs) {
     if (pr.draft) {
       wipCount++;
       console.log(
-        `🟠 Skipped Draft Pull Request by ${pr.author.display_name} - ${pr.title}`
+        `🟠 Skipped Draft Pull Request by ${pr.author.display_name} - ${pr.title}`,
       );
       continue;
     }
@@ -66,7 +66,7 @@ export function categorizePRs(prs) {
     if (prTitle.includes("wip")) {
       wipCount++;
       console.log(
-        `🟠 Skipped WIP Pull Request by ${pr.author.display_name} - ${pr.title}`
+        `🟠 Skipped WIP Pull Request by ${pr.author.display_name} - ${pr.title}`,
       );
       continue;
     }
@@ -74,7 +74,7 @@ export function categorizePRs(prs) {
     if (prTitle.includes("halt")) {
       haltedCount++;
       console.log(
-        `🟠 Skipped Halted Pull Request by ${pr.author.display_name} - ${pr.title}`
+        `🟠 Skipped Halted Pull Request by ${pr.author.display_name} - ${pr.title}`,
       );
       continue;
     }

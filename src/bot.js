@@ -39,7 +39,7 @@ for (const file of commandFiles) {
   }
 }
 
-client.once("ready", () => {
+client.once("clientReady", () => {
   const now = DateTime.now().setZone(env.timezone).toFormat(env.date_format);
 
   console.log(`✅ Bot is online as ${client.user.tag} at ${now}`);
@@ -74,7 +74,10 @@ client.on("interactionCreate", async (interaction) => {
   try {
     await command.execute(interaction, client);
   } catch (error) {
-    console.error(`❌ Error executing ${interaction.commandName}, error:`, error);
+    console.error(
+      `❌ Error executing ${interaction.commandName}, error:`,
+      error,
+    );
     if (interaction.replied || interaction.deferred) {
       await interaction.followUp({
         content: "❌ There was an error executing this command.",
